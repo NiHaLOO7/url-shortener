@@ -30,11 +30,11 @@ class TestURLShortener(unittest.TestCase):
 
     def test_duplicate_url_same_code(self):
         # same URL dobara shorten karo — same code aana chahiye
-        url1 = 'www.google.com'
-        url2 = 'www.google.com'
+        url1 = 'www.youtube.com'
+        url2 = 'www.youtube.com'
         sh = URLShortener()
         short1 = sh.shorten(url1)
-        short2 = sh.shorten(url1)
+        short2 = sh.shorten(url2)
         self.assertEqual(short1,short2)
 
 if __name__ == '__main__':

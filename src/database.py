@@ -79,3 +79,14 @@ class Database:
         row = cursor.fetchone()
         conn.close()
         return row[0] if row else None
+    
+    def get_all_urls(self):
+        conn = sqlite3.connect(self.db_path)
+        cursor = conn.cursor()
+        cursor.execute("""
+                       SELECT long_url FROM urls 
+                       """
+                    )
+        rows = cursor.fetchall()
+        conn.close()
+        return rows
