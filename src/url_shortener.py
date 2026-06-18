@@ -1,11 +1,15 @@
 from src.base62 import Base62
 from src.database import Database
 from src.bloom_filter import BloomFilter
+from src.redis_client import RedisClient
 
+HOST = 'localhost'
+PORT = 6380
 class URLShortener:
     def __init__(self, db_path="urls.db"):
         self.db = Database(db_path)
         self.bloom = BloomFilter(100000, 3)
+        self.redis = RedisClient(HOST, PORT)
         self._load_existing_urls()
 
     def _load_existing_urls(self):
@@ -18,14 +22,20 @@ class URLShortener:
             short_code = self.db.get_short_code(url)
             if short_code is not None:
                 return short_code
-        id = self.db.save_url(url)
-        short_code = Base62.encode(id)
-        self.db.update_short_code(id, short_code)
+        url_id = int(self.redis.incr("url_counter"))
+        short_code = Base62.encode(url_id)
+        self.db.save_url(url, short_code)
+        # self.db.update_short_code(id, short_code)
+        self.redis.set(short_code, url)
         self.bloom.add(url)
         return short_code
 
 
     def redirect(self, short_code):
-        id = Base62.decode(short_code)
-        return self.db.get_long_url(id)
+        url = self.redis.get(short_code) 
+        if url is None:
+            # id = Base62.decode(short_code)
+            url = self.db.get_long_url(short_code)
+            if url is not None: self.redis.set(short_code, url)
+        return url
         

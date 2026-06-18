@@ -23,7 +23,7 @@ class Database:
         conn.commit()
         conn.close()
 
-    def save_url(self, long_url):
+    def save_url(self, long_url, short_code):
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute("""
@@ -32,7 +32,7 @@ class Database:
                        long_url, 
                        created_at) 
                        VALUES (?, ?, ?)""", 
-                       ('', long_url, 
+                       (short_code, long_url, 
                        datetime.now().isoformat())
                     )
         conn.commit()
@@ -54,14 +54,14 @@ class Database:
         conn.commit()
         conn.close()
     
-    def get_long_url(self, id):
+    def get_long_url(self, short_code):
         conn = sqlite3.connect(self.db_path)
         cursor = conn.cursor()
         cursor.execute("""
                        SELECT long_url FROM urls 
-                       WHERE id = ?
+                       WHERE short_code = ?
                        """, 
-                       (id,)
+                       (short_code,)
                     )
         row = cursor.fetchone()
         conn.close()
