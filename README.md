@@ -86,6 +86,12 @@ Redirect — open in browser:
 http://localhost:8080/<short_code>
 ```
 
+### Demo Screenshot
+
+![URL Shortener Demo](assets/demo.png)
+
+> Tested with [ApiPad](https://github.com/NiHaLOO7/ApiPad) — an open-source, lightweight API client. Simple, fast, no sign-up required, and always free. Built as a Postman alternative. Contributions welcome!
+
 ## Redis Integration (Mini Redis)
 
 This project uses [mini-redis](https://github.com/NiHaLOO7/mini-redis) — a Redis implementation built from scratch as part of the same project series.
