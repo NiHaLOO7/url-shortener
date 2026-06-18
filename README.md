@@ -51,20 +51,6 @@ User → Load Balancer → App Servers → Cache (Redis)
 ### SQL vs NoSQL
 Both work. At scale — NoSQL or sharded SQL preferred for horizontal scaling.
 
-## Project Structure
-
-```
-url-shortener/
-├── src/
-│   ├── base62.py          # Base62 encode/decode
-│   ├── database.py        # SQLite operations
-│   └── url_shortener.py   # Core shorten/redirect logic
-├── tests/
-│   └── test.py            # Unit tests
-├── demo.py                # HTTP server demo
-└── requirements.txt
-```
-
 ## Usage
 
 ```python
@@ -100,9 +86,53 @@ Redirect — open in browser:
 http://localhost:8080/<short_code>
 ```
 
-## Future Improvements (Post Mini Redis)
-- Redis caching layer
-- Distributed ID generation (Twitter Snowflake)
+## Redis Integration (Mini Redis)
+
+This project uses [mini-redis](https://github.com/NiHaLOO7/mini-redis) — a Redis implementation built from scratch as part of the same project series.
+
+### Features Added
+- **Redis Caching** — frequently accessed URLs cached in Redis for fast redirect (no DB hit)
+- **Distributed ID Generation (Redis INCR)** — shared atomic counter across multiple servers
+- **Snowflake ID Generator** — Twitter-style 64-bit unique IDs using timestamp + machine_id + sequence (no central dependency)
+
+### How to Run (with Redis)
+
+1. Start mini-redis (Docker):
+```bash
+cd ~/Desktop/Codes/GIT_PROJ/mini-redis
+docker compose up --build
+```
+
+2. Run URL Shortener:
+```bash
+cd ~/Desktop/Codes/GIT_PROJ/url-shortener
+python3 demo.py
+```
+
+3. Mini-redis runs on port `6380`, URL shortener connects automatically.
+
+### Without Redis
+If mini-redis is not running, `RedisClient` will throw `ConnectionRefusedError` on startup. To run without Redis, comment out the Redis lines in `url_shortener.py`.
+
+## Project Structure
+
+```
+url-shortener/
+├── src/
+│   ├── base62.py          # Base62 encode/decode
+│   ├── bloom_filter.py    # Bloom filter for duplicate check
+│   ├── database.py        # SQLite operations
+│   ├── redis_client.py    # TCP client for mini-redis
+│   ├── snowflake.py       # Snowflake ID generator
+│   └── url_shortener.py   # Core shorten/redirect logic
+├── tests/
+│   └── test.py            # Unit tests
+├── demo.py                # HTTP server demo
+└── requirements.txt
+```
+
+## Future Improvements
 - Connection pooling
 - TTL (link expiry)
 - Click analytics
+- Graceful fallback when Redis is down
